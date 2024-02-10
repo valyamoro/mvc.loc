@@ -6,6 +6,7 @@ namespace App\Routing;
 use App\Exceptions\ExceptionAction;
 use App\Exceptions\ExceptionController;
 use App\Exceptions\ExceptionPage;
+use App\Http\Request;
 
 /**
  * Class Router
@@ -17,6 +18,11 @@ final class Router
     private array $route = [];
     private array $routes = [];
 
+    public function __construct(
+        private Request $request
+    ) {
+    }
+
     public function getRoute(): array
     {
         return $this->route;
@@ -27,14 +33,14 @@ final class Router
         return $this->routes;
     }
 
-    public function add(string $exp ,array $route = []): void
+    public function add(string $exp, array $route = []): void
     {
         $this->routes[$exp] = $route;
     }
 
-    public function dispatch(string $uri): void
+    public function dispatch(): void
     {
-        $queryString = $this->clearQueryString($uri);
+        $queryString = $this->clearQueryString($this->request->getQueryString());
         if ($this->matchRoute($queryString)) {
             $controller = 'App\\Controllers\\' . $this->route['prefix'] . $this->route['controller'] . 'Controller';
             if (\class_exists($controller)) {
@@ -50,7 +56,7 @@ final class Router
                 throw new ExceptionController("Контроллер: ({$controller}) на найден.", 404);
             }
         } else {
-            throw new ExceptionPage("Страница: ({$uri}) не найден.");
+            throw new ExceptionPage("Страница: ({$this->request->getQueryString()}) не найден.");
         }
     }
 
@@ -81,6 +87,7 @@ final class Router
                 } else {
                     $route['prefix'] .= '\\';
                 }
+
                 $route['controller'] = $this->upperString($route['controller']);
                 $this->route = $route;
                 return true;

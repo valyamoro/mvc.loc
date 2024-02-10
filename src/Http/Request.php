@@ -32,7 +32,7 @@ final class Request
 
     public function isEmpty(mixed $name): bool
     {
-        return empty($name);
+        return !isset($name);
     }
 
     public function isAjax(): bool

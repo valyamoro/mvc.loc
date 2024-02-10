@@ -14,7 +14,7 @@ try {
     $router->add('^(?P<controller>[a-z-]+)/?(?P<action>[a-z-]+)?$');
 
     $uri = \trim($_SERVER['QUERY_STRING'], '/');
-    $router->dispatch($uri);
+    echo $router->dispatch();
 } catch (\Exception $e) {
     echo $e->getMessage();
 }

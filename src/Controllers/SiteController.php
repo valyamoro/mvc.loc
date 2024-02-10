@@ -12,22 +12,16 @@ use App\Core\Controller;
  */
 class SiteController extends Controller
 {
-    public function actionIndex()
+    public function actionIndex(): string
     {
-        $this->setMeta('Главная страница', 'Описание', 'ключи');
-        $this->set([
-            'title' => $this->meta['meta_title'],
-            'data' => 'Ivan Morozov',
-        ]);
+        $this->view->setMeta('Главная', 'Описание', 'Ключи');
+        return $this->view->render('site.index');
     }
 
-    public function actionView()
+    public function actionView(): string
     {
-        $this->setMeta('Контакты', 'Описание', 'ключи');
-        $this->set([
-            'title' => $this->meta['meta_title'],
-            'data' => 'Ivan Morozov',
-        ]);
+        $this->view->setMeta('Контакты', 'Описание', 'ключи');
+        return $this->view->render('site.view', ['title' => 'Контакты']);
     }
 
 }

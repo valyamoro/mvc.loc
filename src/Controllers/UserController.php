@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Exceptions\ViewException;
 
 /**
  * Class UserController
@@ -12,22 +13,16 @@ use App\Core\Controller;
  */
 class UserController extends Controller
 {
-    public function actionIndex()
+    public function actionIndex(): string
     {
-        $this->setMeta('Пользователи', 'Описание', 'ключи');
-        $this->set([
-            'title' => $this->meta['meta_title'],
-            'data' => 'Ivan Morozov',
-        ]);
+        $this->view->setMeta('Пользователи', 'Описание', 'ключи');
+        return $this->view->render('user.index');
     }
 
-    public function actionCreate()
+    public function actionCreate(): string
     {
-        $this->setMeta('Добавить Пользователи', 'Описание', 'ключи');
-        $this->set([
-            'title' => $this->meta['meta_title'],
-            'data' => 'Ivan Morozov',
-        ]);
+        $this->view->setMeta('Добавить Пользователи', 'Описание', 'ключи');
+        return $this->view->render('user.create');
     }
 
 }

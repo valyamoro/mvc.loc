@@ -19,18 +19,8 @@ final class Router
     private array $routes = [];
 
     public function __construct(
-        private Request $request
+        private readonly Request $request
     ) {
-    }
-
-    public function getRoute(): array
-    {
-        return $this->route;
-    }
-
-    public function getRoutes(): array
-    {
-        return $this->routes;
     }
 
     public function add(string $exp, array $route = []): void
@@ -38,17 +28,16 @@ final class Router
         $this->routes[$exp] = $route;
     }
 
-    public function dispatch(): void
+    public function dispatch(): string
     {
         $queryString = $this->clearQueryString($this->request->getQueryString());
         if ($this->matchRoute($queryString)) {
-            $controller = 'App\\Controllers\\' . $this->route['prefix'] . $this->route['controller'] . 'Controller';
+            $controller = 'App\\Controllers\\' . $this->route['controller'] . 'Controller';
             if (\class_exists($controller)) {
-                $classObj = new $controller($this->route);
+                $classObj = new $controller($this->request);
                 $method = 'action' . $this->upperString($this->route['action']);
                 if (\method_exists($classObj, $method)) {
-                    $classObj->$method();
-                    $classObj->getView();
+                    return $classObj->$method();
                 } else {
                     throw new ExceptionAction("Метод: ({$controller}::{$method}) на найден.", 404);
                 }
@@ -81,13 +70,8 @@ final class Router
                         $route[$key] = $value;
                     }
                 }
-                $route['action'] ??= 'index';
-                if (!isset($route['prefix'])) {
-                    $route['prefix'] = '';
-                } else {
-                    $route['prefix'] .= '\\';
-                }
 
+                $route['action'] ??= 'index';
                 $route['controller'] = $this->upperString($route['controller']);
                 $this->route = $route;
                 return true;

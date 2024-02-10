@@ -12,66 +12,56 @@ use App\Exceptions\ViewException;
  */
 final class View
 {
-    private array $route;
-    private string $controller;
-    private string $action;
-    private string $prefix;
-    private string $view;
-    private string $layout;
+    private const DEFAULT_LAYOUT = 'layouts.default';
     private array $meta;
 
     public function __construct(
-        array $route,
-        array $meta = [],
-        string $layout = '',
-        string $view = '',
-    )
-    {
-        $this->route = $route;
-        $this->controller = $route['controller'];
-        $this->action = $route['action'];
-        $this->prefix = $route['prefix'];
-        $this->meta = $meta;
-        $this->layout = $layout;
-        $this->view = $view;
-        if (false === $layout) {
-            $this->layout = '';
-        } else {
-            $this->layout = $layout ?: 'default';
+        private ?string $layout = null,
+    ) {
+        if (\is_null($layout)) {
+            $this->layout = self::DEFAULT_LAYOUT;
         }
     }
 
-    public function render(array $data): void
+    public function render(string $template, array $viewData = []): string
     {
-        if (\is_array($data)) {
-            \extract($data);
-        }
-        $controller = \strtolower($this->controller);
-        $viewPath = __DIR__ . "/../../views/{$this->prefix}{$controller}/{$this->view}.php";
-        if (\is_file($viewPath)) {
-            ob_start();
-            require $viewPath;
-            $content = ob_get_clean();
+        if ('' === $this->layout) {
+            throw new ViewException("Шабло не может быть пустым.");
         } else {
-            throw new ViewException("Вид: ({$viewPath}) не найден.");
-        }
-        if (false !== $this->layout) {
-            $layoutPath = __DIR__ . "/../../views/layouts/{$this->layout}.php";
-            if (\is_file($layoutPath)) {
-                require $layoutPath;
+            $layoutPath = __DIR__ . "/../../views/{$this->replaceDotsWithSlashes($this->layout)}.php";
+            if (!\is_file($layoutPath)) {
+                throw new ViewException("Шаблон: {$layoutPath} не найден.");
             } else {
-                throw new ViewException("Шаблон: {$viewPath} не найден.");
+                $content = $this->buffering($layoutPath, $this->meta);
             }
+            $viewPath = __DIR__ . "/../../views/{$this->replaceDotsWithSlashes($template)}.php";
+            if (!\is_file($viewPath)) {
+                throw new ViewException("Вид: ({$viewPath}) не найден.");
+            } else {
+                $content .= $this->buffering($viewPath, $viewData);
+            }
+            return $content;
         }
     }
 
-    public function getMeta(): string
+    private function buffering(string $filePath, array $data = []): string
     {
-        $meta = '<title>' . $this->meta['meta_title'] . '</title>';
-        $meta .= '<meta mane="keywords" content="' . $this->meta['meta_keywords'] . '">';
-        $meta .= '<meta name="description" content="' . $this->meta['meta_description'] . '">';
+        \extract($data);
+        \ob_start();
+        require $filePath;
+        return \ob_get_clean();
+    }
 
-        return $meta;
+    private function replaceDotsWithSlashes(string $value): string
+    {
+        return \str_replace('.', '/', $value);
+    }
+
+    public function setMeta(string $title = '', string $description = '', string $keywords = ''): void
+    {
+        $this->meta['metaTitle'] = $title;
+        $this->meta['metaDescription'] = $description;
+        $this->meta['metaKeywords'] = $keywords;
     }
 
 }

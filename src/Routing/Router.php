@@ -19,18 +19,8 @@ final class Router
     private array $routes = [];
 
     public function __construct(
-        private Request $request
+        private readonly Request $request
     ) {
-    }
-
-    public function getRoute(): array
-    {
-        return $this->route;
-    }
-
-    public function getRoutes(): array
-    {
-        return $this->routes;
     }
 
     public function add(string $exp, array $route = []): void
@@ -42,7 +32,7 @@ final class Router
     {
         $queryString = $this->clearQueryString($this->request->getQueryString());
         if ($this->matchRoute($queryString)) {
-            $controller = 'App\\Controllers\\' . $this->route['prefix'] . $this->route['controller'] . 'Controller';
+            $controller = 'App\\Controllers\\' . $this->route['controller'] . 'Controller';
             if (\class_exists($controller)) {
                 $classObj = new $controller($this->route);
                 $method = 'action' . $this->upperString($this->route['action']);
@@ -82,11 +72,6 @@ final class Router
                     }
                 }
                 $route['action'] ??= 'index';
-                if (!isset($route['prefix'])) {
-                    $route['prefix'] = '';
-                } else {
-                    $route['prefix'] .= '\\';
-                }
 
                 $route['controller'] = $this->upperString($route['controller']);
                 $this->route = $route;

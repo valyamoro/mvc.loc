@@ -5,7 +5,8 @@ error_reporting(-1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 try {
-    $router = new \App\Routing\Router(new \App\Http\Request());
+    $request = new \App\Http\Request();
+    $router = new \App\Routing\Router($request);
 
     $router->add('on-nas', ['controller' => 'Site', 'action' => 'view']);
     $router->add('contact', ['controller' => 'Site', 'action' => 'view']);

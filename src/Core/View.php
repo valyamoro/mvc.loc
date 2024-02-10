@@ -15,7 +15,6 @@ final class View
     private array $route;
     private string $controller;
     private string $action;
-    private string $prefix;
     private string $view;
     private string $layout;
     private array $meta;
@@ -30,7 +29,6 @@ final class View
         $this->route = $route;
         $this->controller = $route['controller'];
         $this->action = $route['action'];
-        $this->prefix = $route['prefix'];
         $this->meta = $meta;
         $this->layout = $layout;
         $this->view = $view;
@@ -47,7 +45,7 @@ final class View
             \extract($data);
         }
         $controller = \strtolower($this->controller);
-        $viewPath = __DIR__ . "/../../views/{$this->prefix}{$controller}/{$this->view}.php";
+        $viewPath = __DIR__ . "/../../views/{$controller}/{$this->view}.php";
         if (\is_file($viewPath)) {
             ob_start();
             require $viewPath;

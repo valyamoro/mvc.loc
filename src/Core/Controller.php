@@ -11,9 +11,7 @@ namespace App\Core;
 abstract class Controller
 {
     private array $route;
-    private string $controller;
     private string $view;
-    private string $prefix;
     private array $data = [];
     protected array $meta = [
         'meta_title' => '',
@@ -27,7 +25,6 @@ abstract class Controller
         $this->route = $route;
         $this->controller = $route['controller'];
         $this->view = $route['action'];
-        $this->prefix = $route['prefix'];
     }
 
     public function getView(): void
